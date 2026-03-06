@@ -34,7 +34,6 @@ def process(pipeline_cfg):
 
     final_audio_path = os.path.join(pipeline_cfg.output_dir, "audio")
     if os.path.exists(final_audio_path):
-        import shutil
         shutil.rmtree(final_audio_path)
     
     console.clear()
@@ -44,9 +43,8 @@ def process(pipeline_cfg):
     meta_scored = os.path.join(temp_dir, settings.internals.files.scored_metadata)
     meta_final = os.path.join(temp_dir, settings.internals.files.final_metadata)
 
-    # Header de l'application
     console.separator()
-    console.print(f"[x]{__app_name__} | VERSION [z]{__version__} [x]| BY [z]{__author__}")
+    console.print(f"[x]{__app_name__} | VERSION {__version__} | BY {__author__}")
     console.separator()
 
     try:
@@ -101,7 +99,6 @@ def process(pipeline_cfg):
         if os.path.exists(temp_dir):
             logger.info(T.translate("main_cleaning_temp"))
             shutil.rmtree(temp_dir)
-        console.separator()
 
 def run_stats(pipeline_cfg):
     final_audio_path = os.path.join(pipeline_cfg.output_dir, "audio")

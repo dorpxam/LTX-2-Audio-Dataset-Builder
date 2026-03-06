@@ -9,13 +9,9 @@ from source.utils.translator import T
 logger = get_logger("Caption")
 
 def process(metadata_file: str, output_dir: str, config, settings_internals):
-    """
-    Step 4: Génération du dataset final (Audio + JSONL).
-    """
     final_audio_dir = os.path.join(output_dir, "audio")
     os.makedirs(final_audio_dir, exist_ok=True)
     
-    # Récupération du nom du JSONL via settings.yaml
     jsonl_filename = settings_internals.files.dataset_jsonl
     jsonl_path = os.path.abspath(os.path.join(output_dir, jsonl_filename))
 
@@ -34,7 +30,6 @@ def process(metadata_file: str, output_dir: str, config, settings_internals):
         logger.warning(T.translate("caption_no_validated_segments"))
         return 0
 
-    # Début de l'export final
     logger.info(T.translate("caption_gen_dataset_start", dir=output_dir))
     logger.info(T.translate("caption_count_export", count=len(data)))
     
@@ -47,14 +42,12 @@ def process(metadata_file: str, output_dir: str, config, settings_internals):
                 filename = os.path.basename(old_path)
                 new_abs_path = os.path.abspath(os.path.join(final_audio_dir, filename))
 
-                # Copie physique des fichiers de temp/ vers le dossier final
                 if os.path.exists(old_path):
                     shutil.copy2(old_path, new_abs_path)
                 else:
                     logger.warning(T.translate("caption_source_missing", path=old_path))
                     continue
 
-                # Nettoyage pour le format JSONL
                 text_clean = entry['text'].replace('"', "'") 
                 
                 try:
@@ -64,7 +57,6 @@ def process(metadata_file: str, output_dir: str, config, settings_internals):
                         text=text_clean
                     )
                 except Exception:
-                    # Fallback si le template YAML est corrompu
                     caption = f"{config.gender}, {config.language}: {text_clean}"
 
                 line = {
@@ -75,9 +67,7 @@ def process(metadata_file: str, output_dir: str, config, settings_internals):
                 f_out.write(json.dumps(line, ensure_ascii=False) + '\n')
                 exported_count += 1
 
-        # Logs de fin de pipeline
         logger.info(T.translate("caption_jsonl_success", path=jsonl_path))
-        # Utilisation de la clé d'export finale (Count en cyan, Dir en vert)
         logger.info(T.translate("caption_export_summary", count=exported_count, dir=final_audio_dir))
         
     except Exception as e:

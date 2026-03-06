@@ -18,12 +18,8 @@ def get_lexical_complexity(text: str) -> float:
     return avg_len * unique_ratio
 
 def process(segment_dir: str, config, engine_cfg, seg_config, settings, language: str):
-    """
-    Step 2: Scoring statistique (ASR + Lexical).
-    """
     engine = InferenceEngine(config=engine_cfg)
 
-    # Récupération de l'extension dynamique
     ext = seg_config.segment_format.extension.strip('.')
     audio_files = [f for f in os.listdir(segment_dir) if f.endswith(f'.{ext}')]
     
@@ -34,16 +30,13 @@ def process(segment_dir: str, config, engine_cfg, seg_config, settings, language
     temp_data = []
     first_word_counts = Counter()
 
-    # Log simplifié : focus sur le threshold
     logger.info(T.translate("scoring_stat_start", thresh=config.threshold))
 
-    # Chargement du modèle ASR (Le message "Loading ASR Engine" est géré dans InferenceEngine)
     engine.ensure_asr_loaded()
     
     for filename in tqdm(audio_files, desc=T.translate("scoring_progress_bar"), leave=False):
         abs_path = os.path.abspath(os.path.join(segment_dir, filename))
         
-        # Transcription via Qwen-ASR
         text = engine.transcribe(abs_path, language=language)
         
         if not text:
@@ -74,19 +67,16 @@ def process(segment_dir: str, config, engine_cfg, seg_config, settings, language
                 "score": round(score, 2)
             })
 
-    # Sauvegarde des métadonnées temporaires
     scored_filename = settings.files.scored_metadata
     output_meta = os.path.join(segment_dir, scored_filename)
     
     try:
         with open(output_meta, 'w', encoding='utf-8') as f:
             json.dump(temp_data, f, ensure_ascii=False, indent=4)
-        # On affiche uniquement le nom du fichier en vert pour la clarté
         logger.info(T.translate("scoring_save_success", path=scored_filename))
     except Exception as e:
         logger.error(T.translate("scoring_save_error", error=str(e)))
 
-    # Résumé final harmonisé
     logger.info(T.translate("scoring_summary", kept=len(temp_data), total=len(audio_files)))
     
     return len(temp_data)

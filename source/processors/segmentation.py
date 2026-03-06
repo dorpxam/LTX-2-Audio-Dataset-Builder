@@ -25,12 +25,8 @@ def normalize_lufs_tensor(tensor, sr, target_lufs):
         return tensor
 
 def process(input_file, output_dir, config, settings):
-    """
-    Processus de segmentation VAD révisé.
-    """
     os.makedirs(output_dir, exist_ok=True)
 
-    # 1. Infos fichier source (Affiché en premier)
     file_name = os.path.basename(input_file)
     audio_meta, duration = get_audio_info(input_file)
     
@@ -38,9 +34,8 @@ def process(input_file, output_dir, config, settings):
     logger.info(T.translate("segmentation_audio_info", audio_meta=audio_meta))
     logger.info(T.translate("segmentation_duration", duration=to_hms(duration)))
     
-    # 2. Chargement du modèle VAD
     logger.info(T.translate("segmentation_loading_model"))
-    #logger.info(T.translate("segmentation_waiting_message")) # Premier "Please wait" (Lecture audio VAD)
+    #logger.info(T.translate("segmentation_waiting_message"))
     
     model, utils = torch.hub.load(
         repo_or_dir=settings.repo, 
@@ -50,15 +45,13 @@ def process(input_file, output_dir, config, settings):
     (get_speech_timestamps, _, read_audio, _, _) = utils
 
     try:
-        # Silero VAD nécessite du 16kHz
         wav_vad = read_audio(input_file, sampling_rate=settings.internal_sampling_rate)
     except Exception as e:
         logger.error(T.translate("segmentation_read_error", error=str(e)))
         raise
 
-    # 3. Détection des segments
     logger.info(T.translate("segmentation_detecting_timestamps"))
-    #logger.info(T.translate("segmentation_waiting_message")) # Deuxième "Please wait" (Inférence VAD)
+    #logger.info(T.translate("segmentation_waiting_message"))
     
     speech_timestamps = get_speech_timestamps(
         wav_vad, 
@@ -67,11 +60,9 @@ def process(input_file, output_dir, config, settings):
         threshold=config.threshold
     )
 
-    # 4. Préparation de l'export HQ
     logger.info(T.translate("segmentation_loading_hq"))
     audio_hq, sr_hq = torchaudio.load(input_file)
     
-    # Logique de conversion Mono
     is_mono_request = config.segment_format.channels == "mono"
     if is_mono_request and audio_hq.shape[0] > 1:
         status_mono = T.translate("status_mixed_to_mono")
@@ -80,7 +71,6 @@ def process(input_file, output_dir, config, settings):
         status_mono = T.translate("status_already_mono")
     logger.info(T.translate("segmentation_mono_mixed", status=status_mono))
 
-    # Logique de Resampling
     target_sr = config.segment_format.sampling_rate
     if sr_hq != target_sr:
         status_sr = T.translate("status_resampling", old=sr_hq, new=target_sr)
@@ -91,10 +81,8 @@ def process(input_file, output_dir, config, settings):
         status_sr = T.translate("status_already_resampled", sr=sr_hq)
     logger.info(T.translate("segmentation_resampling", status=status_sr))
 
-    # Normalisation LUFS info
     logger.info(T.translate("segmentation_lufs_info", lufs=config.segment_format.loudness_lufs))
 
-    # 5. Découpe et sauvegarde
     segments_count = 0
     min_s = config.segment_file.duration.min_sec
     max_s = config.segment_file.duration.max_sec
@@ -124,6 +112,5 @@ def process(input_file, output_dir, config, settings):
             )
             segments_count += 1
 
-    # Résumé final (Clé : segmentation_done)
     logger.info(T.translate("segmentation_done", kept=segments_count, total=len(speech_timestamps)))
     return segments_count

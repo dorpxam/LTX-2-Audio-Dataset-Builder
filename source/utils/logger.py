@@ -2,11 +2,10 @@ import logging
 import re
 import pathlib
 from typing import Optional
-from .console import Console # Votre classe
+from .console import Console
 
 class MXPFormatter(logging.Formatter):
     def __init__(self):
-        # On définit le format de base avec l'heure
         super().__init__(fmt='%(asctime)s | %(message)s', datefmt='%H:%M:%S')
         self.console = Console()
 
@@ -17,7 +16,6 @@ class MXPFormatter(logging.Formatter):
 class FileCleanerFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         msg = super().format(record)
-        # On supprime tous les tags [a], [g], [z], etc. pour le fichier .log
         clean_msg = re.sub(r'\[[a-z ]\]', '', msg)
         return clean_msg
 

@@ -22,11 +22,10 @@ class EngineConfig:
 class PipelineConfig:
     audio_source: str
     output_dir: str
-    settings: SimpleNamespace = None # settings.yaml
-    config: SimpleNamespace = None   # config.yaml (Objet complet)
+    settings: SimpleNamespace = None
+    config: SimpleNamespace = None
     engine: EngineConfig = field(default_factory=EngineConfig)
     
-    # Raccourcis pour le code existant
     @property
     def segmentation(self): return self.config.segmentation
     @property
@@ -37,7 +36,6 @@ class PipelineConfig:
     def caption(self): return self.config.caption
 
 def dict_to_sns(data):
-    """Convertit récursivement un dictionnaire en SimpleNamespace."""
     return json.loads(json.dumps(data), object_hook=lambda d: SimpleNamespace(**d))
 
 def load_all_configs(audio_source: str, output_dir: str, user_config_path: str = None) -> PipelineConfig:
@@ -54,7 +52,6 @@ def load_all_configs(audio_source: str, output_dir: str, user_config_path: str =
     with open(config_file, 'r', encoding='utf-8') as f:
         c_data = yaml.safe_load(f)
 
-    # 1. Moteur (Engine) - On mixe Hardware (User) et Models (Internal)
     h = c_data.get('hardware', {})
     m = s_data.get('models', {})
     
@@ -70,8 +67,6 @@ def load_all_configs(audio_source: str, output_dir: str, user_config_path: str =
         llm_prompt=m.get('llm', {}).get('style_prompt', "")
     )
 
-    # 2. Conversion de tout le reste en Objets par points
-    # Cela permet de faire config.segmentation.segment_format.channels
     settings_obj = dict_to_sns(s_data)
     user_config_obj = dict_to_sns(c_data)
 

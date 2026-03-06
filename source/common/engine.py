@@ -28,7 +28,6 @@ class InferenceEngine:
 
     def transcribe(self, audio_path: str, language: str = "English"):
         try:
-            # L'appel à ensure_asr_loaded est géré par l'appelant (ex: scoring.py)
             res = self.asr_model.transcribe(audio=audio_path, language=language)
             
             if isinstance(res, list) and len(res) > 0:
@@ -46,7 +45,6 @@ class InferenceEngine:
             return None
 
     def analyze_style(self, text: str):
-        # L'appel à ensure_llm_loaded est géré par l'appelant (ex: analyze.py)
         prompt = self.config.llm_prompt.format(text=text)
         
         inputs = self.llm_tokenizer(prompt, return_tensors="pt").to(self.device)
