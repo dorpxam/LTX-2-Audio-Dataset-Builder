@@ -33,5 +33,4 @@ Thumbs.db
 # --- Configuration ---
 # Il est souvent conseillé d'ignorer le config.yaml réel 
 # et de ne pusher qu'un config.yaml.example
-config.yaml
 !config.yaml.example

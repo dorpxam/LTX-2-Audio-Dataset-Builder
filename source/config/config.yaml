@@ -1,0 +1,33 @@
+# LTX-2 Audio Dataset Builder - Configuration
+
+segmentation:
+  threshold: 0.5
+  segment_file:
+    filename: "segment_{idx:05d}.flac"
+    duration:
+      min_sec: 2.0
+      max_sec: 20.0
+  segment_format:
+    sampling_rate: 48000
+    bits_per_sample: 16
+    channels: "mono"
+    loudness_lufs: -16.0
+    extension: ".flac"
+
+scoring:
+  threshold: 0.3
+  max_redundancy: 3
+
+analyze:
+  min_literary_score: 7
+
+caption:
+  gender: "man"
+  language: "english"
+  template: "A {gender} say in {language}: \"{text}\""
+
+hardware:
+  device: "cuda:0"
+  use_8bit: false
+  use_flash_attn_2: true
+  use_low_cpu_mem_usage: false
