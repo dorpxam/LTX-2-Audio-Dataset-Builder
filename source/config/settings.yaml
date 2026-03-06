@@ -1,0 +1,25 @@
+models:
+  vad:
+    repo: "snakers4/silero-vad"
+    model: "silero_vad"
+    internal_sampling_rate: 16000
+  asr:
+    id: "Qwen/Qwen3-ASR-1.7B"
+  llm:
+    id: "Qwen/Qwen2.5-7B-Instruct"
+    temperature: 0.1
+    max_new_tokens: 10
+    style_prompt: |
+      Rate the literary richness and phonetic complexity of this sentence from 1 to 10.
+      Answer ONLY with the number.
+      Sentence: "{text}"
+
+internals:
+  paths:
+    temp_dir: "./temp"
+  files:
+    scored_metadata: "metadata_scored.json"
+    final_metadata: "metadata_final.json"
+    dataset_jsonl: "dataset.jsonl"
+  audio:
+    supported_extensions: [".flac", ".wav", ".mp3", ".m4a", ".ogg"]

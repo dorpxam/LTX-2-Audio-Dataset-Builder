@@ -1,0 +1,37 @@
+# --- Python ---
+__pycache__
+.py[cod]
+$py.class
+.vscode
+.venv
+venv
+ENV
+env
+
+# --- Audio Dataset Builder Specific ---
+# On ignore les répertoires de sortie par défaut
+# (Adaptez si vous utilisez un nom spécifique récurrent)
+backup
+outputs
+dataset_
+temp_
+
+# On ignore les fichiers de données générés
+.jsonl
+.json
+.csv
+.wav
+.flac
+.mp3
+
+# --- IDE & OS ---
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# --- Configuration ---
+# Il est souvent conseillé d'ignorer le config.yaml réel 
+# et de ne pusher qu'un config.yaml.example
+config.yaml
+!config.yaml.example
